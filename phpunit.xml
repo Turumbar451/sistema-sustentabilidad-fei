@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ARCHIVO de configuracion par PHPUnit, la herramienta para ejecutar pruebas automatizadas -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
 >
+<!-- bootstrap carga el archivo autoload, que permite cargar las clases que necesita la aplicacion. -->
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
@@ -23,9 +26,8 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
-        <env name="DB_URL" value=""/>
+
+        
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

@@ -1,58 +1,74 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema web para la gestión de iniciativas de sustentabilidad en la FEI
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Proyecto de trabajo recepcional orientado a apoyar el registro, evaluación y consulta de iniciativas de sustentabilidad de la Facultad de Estadística e Informática (FEI).
 
-## About Laravel
+## Tecnologías
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Laravel 13 y PHP 8.5
+- MySQL 8.4
+- Blade, Tailwind CSS y JavaScript
+- Composer y npm
+- PHPUnit para pruebas automatizadas
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Funcionalidades de la primera iteración
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **CU-01:** Autenticación institucional.
+- **CU-02:** Registro de propuestas de acciones de sustentabilidad.
+- **CU-03:** Evaluación y dictamen de propuestas.
+- **CU-04:** Consulta del catálogo público de acciones de sustentabilidad.
 
-## Learning Laravel
+## Requisitos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Se requiere PHP con la extensión `pdo_mysql`, Composer, Node.js/npm y MySQL 8.4.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalación local
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+1. Clonar el repositorio y entrar en la carpeta del proyecto.
 
-## Agentic Development
+    ```powershell
+    git clone URL_DEL_REPOSITORIO
+    cd sistema-sustentabilidad-fei
+    ```
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+2. Instalar dependencias y crear la configuración local.
 
-```bash
-composer require laravel/boost --dev
+    ```powershell
+    composer install
+    npm install
+    Copy-Item .env.example .env
+    php artisan key:generate
+    ```
 
-php artisan boost:install
+3. Configurar en `.env` la conexión MySQL (`DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` y `DB_PASSWORD`). Crear previamente la base de datos de desarrollo.
+
+4. Ejecutar las migraciones y arrancar la aplicación.
+
+    ```powershell
+    php artisan migrate
+    npm run build
+    php artisan serve
+    ```
+
+    La aplicación estará disponible en `http://localhost:8000`.
+
+## Pruebas automatizadas
+
+Las pruebas utilizan una base de datos MySQL independiente de la base de desarrollo.
+
+1. Crear previamente la base de datos de pruebas.
+2. Crear `.env.testing` a partir de `.env` y cambiar `APP_ENV=testing` y `DB_DATABASE` por el nombre de la base de datos de pruebas. Mantener las credenciales locales correspondientes.
+3. Ejecutar las pruebas:
+
+    ```powershell
+    php artisan test
+    ```
+
+Para ejecutar una prueba o clase específica:
+
+```powershell
+php artisan test --filter=NombreDeLaPrueba
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Seguridad
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+No versionar `.env`, `.env.testing` ni otras credenciales. El archivo `.env.example` debe contener únicamente valores de referencia, nunca contraseñas o secretos reales. La aplicación utiliza una cuenta MySQL propia y no la cuenta administrativa `root`.
