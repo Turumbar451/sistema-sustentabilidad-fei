@@ -1,3 +1,4 @@
+
 @extends('layouts.guest')
 
 @section('title', 'Catálogo público | FEI Sustentabilidad')
@@ -38,8 +39,9 @@
         </div>
     </header>
 
-    {{-- Un solo formulario GET mantiene sincronizados búsqueda, filtros y orden. --}}
+    {{-- Formulario de búsqueda y filtros --}}
     <form method="GET" action="{{ route('catalogo.index') }}" id="catalogo-filtros">
+
         {{-- Hero --}}
         <section class="relative overflow-hidden bg-[#16382B]" aria-labelledby="catalogo-titulo">
             <div class="pointer-events-none absolute inset-y-0 right-0 hidden w-130 md:block" aria-hidden="true">
@@ -66,11 +68,13 @@
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                         <div class="relative min-w-0 flex-1">
                             <label for="busqueda" class="sr-only">Buscar iniciativas por nombre o tema</label>
+
                             <svg class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#839188]"
                                  fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                 <circle cx="11" cy="11" r="7" />
                                 <path d="m20 20-3.5-3.5" stroke-linecap="round" />
                             </svg>
+
                             <input
                                 type="search"
                                 id="busqueda"
@@ -94,6 +98,7 @@
         {{-- Contenido y filtros --}}
         <main id="contenido-principal" class="bg-[#F7F9F6]">
             <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h2 class="text-2xl font-bold tracking-tight text-[#16382B]">Explora las iniciativas</h2>
@@ -104,6 +109,7 @@
 
                     <div class="flex items-center gap-2">
                         <label for="orden" class="shrink-0 text-xs font-semibold text-[#68766F]">Ordenar:</label>
+
                         <select
                             id="orden"
                             name="orden"
@@ -117,28 +123,34 @@
                 </div>
 
                 <div class="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-7">
+
                     {{-- Sidebar de filtros --}}
                     <aside class="lg:col-span-3" aria-label="Filtros de búsqueda">
                         <div class="rounded-xl border border-[#E0E7E1] bg-white p-5 sm:p-6">
                             <h2 class="text-base font-bold text-[#16382B]">Filtrar resultados</h2>
+
                             <hr class="mt-4 border-[#E0E7E1]">
 
+                            {{-- Ejes de trabajo --}}
                             <fieldset class="mt-5">
                                 <legend class="text-[13px] font-semibold text-[#16382B]">Eje de trabajo</legend>
+
                                 <div class="mt-3 space-y-3">
                                     @foreach ($categorias as $categoria)
-                                        @php($idEje = 'eje-' . $loop->index)
+                                        @php($idEje = 'eje-' . $categoria['id'])
+
                                         <div class="flex items-start gap-3">
                                             <input
                                                 type="checkbox"
                                                 id="{{ $idEje }}"
                                                 name="ejes[]"
-                                                value="{{ $categoria }}"
-                                                @checked(in_array($categoria, $ejesSeleccionados, true))
+                                                value="{{ $categoria['id'] }}"
+                                                @checked(in_array($categoria['id'], $ejesSeleccionados, true))
                                                 class="mt-0.5 h-4 w-4 shrink-0 rounded border-[#C9D6CD] text-[#2A7B56] accent-[#2A7B56] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A7B56] focus-visible:ring-offset-2"
                                             >
+
                                             <label for="{{ $idEje }}" class="cursor-pointer text-[11px] font-medium leading-snug text-[#1B2924]">
-                                                {{ $categoria }}
+                                                {{ $categoria['nombre'] }}
                                             </label>
                                         </div>
                                     @endforeach
@@ -147,20 +159,24 @@
 
                             <hr class="mt-6 border-[#E0E7E1]">
 
+                            {{-- Modalidades --}}
                             <fieldset class="mt-5">
                                 <legend class="text-[13px] font-semibold text-[#16382B]">Modalidad</legend>
+
                                 <div class="mt-3 space-y-3">
                                     @foreach ($modalidades as $modalidad)
                                         @php($idModalidad = 'modalidad-' . $loop->index)
+
                                         <div class="flex items-center gap-3">
                                             <input
                                                 type="radio"
                                                 id="{{ $idModalidad }}"
                                                 name="modalidad"
                                                 value="{{ $modalidad }}"
-                                                @checked($modalidadSeleccionada === $modalidad)
+                                                @checked(in_array($modalidad, $modalidadesSeleccionadas, true))
                                                 class="h-4 w-4 shrink-0 border-[#C9D6CD] text-[#2A7B56] accent-[#2A7B56] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A7B56] focus-visible:ring-offset-2"
                                             >
+
                                             <label for="{{ $idModalidad }}" class="cursor-pointer text-[11px] text-[#1B2924]">
                                                 {{ $modalidad }}
                                             </label>
@@ -183,7 +199,9 @@
 
                     {{-- Grid de iniciativas --}}
                     <section class="min-w-0 lg:col-span-9" aria-label="Resultados del catálogo" aria-live="polite">
+
                         @if ($items->isEmpty())
+
                             <div class="rounded-xl border border-dashed border-[#C9D6CD] bg-white px-6 py-16 text-center">
                                 <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#DFEDE2]" aria-hidden="true">
                                     <svg class="h-6 w-6 text-[#2A7B56]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
@@ -191,16 +209,21 @@
                                         <path d="m20 20-3.5-3.5" stroke-linecap="round" />
                                     </svg>
                                 </span>
+
                                 <h3 class="mt-4 text-base font-bold text-[#16382B]">No encontramos iniciativas</h3>
+
                                 <p class="mx-auto mt-2 max-w-sm text-sm text-[#68766F]">
                                     Prueba con otro término de búsqueda o quita algunos filtros para ampliar los resultados.
                                 </p>
+
                                 <a href="{{ route('catalogo.index') }}"
                                    class="mt-5 inline-flex rounded-[9px] border border-gray-300 px-4 py-2 text-sm font-semibold text-[#2A7B56] transition hover:bg-[#F7F9F6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A7B56] focus-visible:ring-offset-2">
                                     Limpiar filtros
                                 </a>
                             </div>
+
                         @else
+
                             <div class="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 xl:grid-cols-3">
                                 @foreach ($items as $item)
                                     <x-catalogo-card :item="$item" />
@@ -218,6 +241,7 @@
                                     </div>
                                 @endif
                             </div>
+
                         @endif
                     </section>
                 </div>
@@ -225,12 +249,19 @@
         </main>
     </form>
 
+    {{-- Footer --}}
     <footer id="como-participar" class="border-t border-[#E0E7E1] bg-white">
         <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-8 sm:flex-row sm:px-6 lg:px-8">
             <p class="text-xs text-[#68766F]">© {{ date('Y') }} FEI · Sustentabilidad</p>
+
             <nav class="flex items-center gap-6" aria-label="Enlaces del pie de página">
-                <a href="#" class="rounded text-xs text-[#68766F] transition hover:text-[#16382B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A7B56] focus-visible:ring-offset-2">Aviso de privacidad</a>
-                <a href="#" class="rounded text-xs text-[#68766F] transition hover:text-[#16382B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A7B56] focus-visible:ring-offset-2">Contacto</a>
+                <a href="#" class="rounded text-xs text-[#68766F] transition hover:text-[#16382B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A7B56] focus-visible:ring-offset-2">
+                    Aviso de privacidad
+                </a>
+
+                <a href="#" class="rounded text-xs text-[#68766F] transition hover:text-[#16382B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A7B56] focus-visible:ring-offset-2">
+                    Contacto
+                </a>
             </nav>
         </div>
     </footer>

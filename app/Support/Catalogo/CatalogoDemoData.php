@@ -11,6 +11,7 @@ final class CatalogoDemoData
 {
     /**
      * categorias disponibles en el filtro del catalogo
+     *
      * @return array<int, string>
      */
     public static function categorias(): array
@@ -25,6 +26,7 @@ final class CatalogoDemoData
 
     /**
      *modalidades disponibles en el filtro del catalogo
+     *
      * @return array<int, string>
      */
     public static function modalidades(): array

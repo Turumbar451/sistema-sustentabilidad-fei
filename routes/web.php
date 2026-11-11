@@ -3,10 +3,11 @@
 use App\Http\Controllers\CatalogoPublicoController;
 use Illuminate\Support\Facades\Route;
 
-
+// pagina principal (el catalogo)
 Route::get('/', [CatalogoPublicoController::class, 'index'])
     ->name('catalogo.index');
 
-Route::get('/catalogo/{accion}', [CatalogoPublicoController::class, 'show'])
-    ->whereNumber('accion')
-    ->name('catalogo.show');
+// detalle de una accion de sustentabilidad
+Route::get('/acciones/{id}', [CatalogoPublicoController::class, 'show'])
+    ->whereNumber('id')
+    ->name('catalogo.show'); //en lugar de usar la url completa, se usa el nombre de la ruta.

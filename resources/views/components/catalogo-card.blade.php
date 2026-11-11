@@ -1,14 +1,15 @@
+
 @props(['item'])
 
 @php
-    // El componente recibe un arreglo temporal 
+    // El componente recibe un arreglo preparado por el controlador.
     $id = data_get($item, 'id');
     $titulo = data_get($item, 'titulo', 'Iniciativa sin título');
     $descripcion = data_get($item, 'descripcion', '');
     $categoria = data_get($item, 'categoria', 'Sin categoría');
     $tema = data_get($item, 'color_tema', 'green');
     $icono = strtolower((string) data_get($item, 'icono', 'hoja'));
-    $fecha = data_get($item, 'fecha', 'Por definir');
+    $fecha = data_get($item, 'fechaInicio', data_get($item, 'fecha', 'Por definir'));
     $modalidad = data_get($item, 'modalidad', 'Por definir');
 
     $temas = [
@@ -31,7 +32,9 @@
 
     $estilo = $temas[$tema] ?? $temas['green'];
     $idTitulo = 'iniciativa-' . $id;
-    $urlDetalle = route('catalogo.show', ['accion' => $id]);
+
+    // La ruta recibe el parámetro llamado "id".
+    $urlDetalle = route('catalogo.show', ['id' => $id]);
 @endphp
 
 <article
@@ -104,6 +107,7 @@
                 <dt class="text-[10px] font-bold uppercase tracking-[0.7px] text-[#68766F]">Fecha</dt>
                 <dd class="mt-1 truncate text-xs font-semibold text-[#16382B]">{{ $fecha }}</dd>
             </div>
+
             <div class="min-w-0">
                 <dt class="text-[10px] font-bold uppercase tracking-[0.4px] text-[#68766F]">Modalidad</dt>
                 <dd class="mt-1 truncate text-xs font-semibold text-[#16382B]">{{ $modalidad }}</dd>
@@ -111,9 +115,11 @@
         </dl>
 
         <div class="mt-5 border-t border-[#E0E7E1] pt-4">
-            <a href="{{ $urlDetalle }}"
-               aria-label="Consultar detalle de {{ $titulo }}"
-               class="flex items-center justify-between rounded text-[13px] font-bold text-[#2A7B56] transition hover:text-[#16382B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A7B56] focus-visible:ring-offset-2">
+            <a
+                href="{{ $urlDetalle }}"
+                aria-label="Consultar detalle de {{ $titulo }}"
+                class="flex items-center justify-between rounded text-[13px] font-bold text-[#2A7B56] transition hover:text-[#16382B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A7B56] focus-visible:ring-offset-2"
+            >
                 <span>Consultar detalle</span>
                 <span aria-hidden="true" class="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5">↗</span>
             </a>
