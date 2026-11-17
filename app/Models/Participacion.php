@@ -4,28 +4,27 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\ParticipacionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Participacion extends Model
 {
+    /** @use HasFactory<ParticipacionFactory> */
     use HasFactory;
 
-    protected $table = 'participaciones';
+    protected $table = 'Participacion';
 
     protected $primaryKey = 'idParticipacion';
 
-    protected $fillable = ['fechaInscripcion', 'idUsuario', 'idAccion'];
+    public $timestamps = false;
+
+    protected $fillable = ['fechaInscripcion', 'idAccion', 'idUsuario'];
 
     protected function casts(): array
     {
-        return ['fechaInscripcion' => 'datetime'];
-    }
-
-    public function usuario(): BelongsTo
-    {
-        return $this->belongsTo(UsuarioInstitucional::class, 'idUsuario', 'idUsuario');
+        return ['fechaInscripcion' => 'immutable_datetime'];
     }
 
     public function accion(): BelongsTo
@@ -33,11 +32,8 @@ class Participacion extends Model
         return $this->belongsTo(AccionSustentabilidad::class, 'idAccion', 'idAccion');
     }
 
-    public static function consultarDisponibilidad(int $idAccion): array
+    public function usuario(): BelongsTo
     {
-        $accion = AccionSustentabilidad::query()->find($idAccion);
-
-        return ['totalParticipantes' => $accion?->participaciones()->count() ?? 0,
-            'disponible' => $accion?->estadoActual->esPublica() ?? false];
+        return $this->belongsTo(UsuarioInstitucional::class, 'idUsuario', 'idUsuario');
     }
 }

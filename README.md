@@ -44,12 +44,30 @@ Se requiere PHP con la extensión `pdo_mysql`, Composer, Node.js/npm y MySQL 8.4
 4. Ejecutar las migraciones y arrancar la aplicación.
 
     ```powershell
-    php artisan migrate
+    php artisan migrate --seed
     npm run build
     php artisan serve
     ```
 
     La aplicación estará disponible en `http://localhost:8000`.
+
+La portada `/` enlaza a la consulta pública `/acciones`. El detalle de una acción publicada se consulta en `/acciones/{id}`. Esta interfaz permite buscar y filtrar; los formularios de registro y evaluación se desarrollarán en iteraciones posteriores.
+
+## Base de datos DI-02
+
+El esquema contiene nueve tablas del dominio: `UsuarioInstitucional`, `Rol`, `UsuarioRol`, `EjeTrabajo`, `EstadoAccion`, `AccionSustentabilidad`, `HistorialEstadoAccion`, `Evidencia` y `Participacion`. Laravel conserva además su tabla técnica `migrations`. Los modelos no utilizan `created_at` ni `updated_at`.
+
+Sesiones y caché usan archivos, y las colas se ejecutan de forma síncrona. Si ya existe una configuración local, establecer `SESSION_DRIVER=file`, `CACHE_STORE=file` y `QUEUE_CONNECTION=sync`; no se requieren las tablas `sessions`, `cache` ni `jobs`.
+
+Para reemplazar el esquema anterior en una base **local de desarrollo**, el siguiente comando elimina todas sus tablas y carga los datos de ejemplo:
+
+```powershell
+php artisan migrate:fresh --seed
+```
+
+El sembrado crea cuatro roles, cinco ejes, seis estados y quince acciones con historial, participaciones y evidencias de ejemplo. Las rutas de evidencias son simuladas: no se crean archivos físicos. Solo se publican acciones aprobadas, en ejecución o finalizadas.
+
+La autenticación de sesión utiliza `UsuarioInstitucional`, sin columnas locales de contraseña o token de recuerdo. La conexión con el proveedor institucional sigue pendiente.
 
 ## Pruebas automatizadas
 

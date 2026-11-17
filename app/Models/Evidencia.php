@@ -4,28 +4,46 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\TipoEvidenciaEnum;
+use Database\Factories\EvidenciaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Evidencia extends Model
 {
+    /** @use HasFactory<EvidenciaFactory> */
     use HasFactory;
 
-    protected $table = 'evidencias';
+    protected $table = 'Evidencia';
 
     protected $primaryKey = 'idEvidencia';
 
-    protected $fillable = ['archivo', 'tipoArchivo', 'descripcion', 'idAccion'];
+    public $timestamps = false;
+
+    protected $fillable = [
+        'nombreArchivo',
+        'ubicacionArchivo',
+        'tipoArchivo',
+        'descripcion',
+        'fechaCarga',
+        'idAccion',
+        'idUsuarioCarga',
+    ];
 
     protected function casts(): array
     {
-        return ['tipoArchivo' => TipoEvidenciaEnum::class];
+        return [
+            'fechaCarga' => 'immutable_datetime',
+        ];
     }
 
     public function accion(): BelongsTo
     {
         return $this->belongsTo(AccionSustentabilidad::class, 'idAccion', 'idAccion');
+    }
+
+    public function usuarioCarga(): BelongsTo
+    {
+        return $this->belongsTo(UsuarioInstitucional::class, 'idUsuarioCarga', 'idUsuario');
     }
 }

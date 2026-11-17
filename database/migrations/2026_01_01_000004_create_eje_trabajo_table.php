@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -8,16 +10,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('ejes_trabajo', function (Blueprint $table): void {
-            $table->id('idEjeTrabajo');
+        Schema::create('EjeTrabajo', function (Blueprint $table): void {
+            $table->increments('idEjeTrabajo');
             $table->string('nombre', 150)->unique();
-            $table->string('color_tema', 30)->default('green');
-            $table->timestamps();
+            $table->text('descripcion')->nullable();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('ejes_trabajo');
+        Schema::dropIfExists('EjeTrabajo');
     }
 };

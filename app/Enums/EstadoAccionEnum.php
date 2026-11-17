@@ -6,15 +6,17 @@ namespace App\Enums;
 
 enum EstadoAccionEnum: string
 {
-    case Propuesta = 'Propuesta';
-    case PendientePorCorregir = 'Pendiente por corregir';
+    case PendienteDeRevision = 'Pendiente de revision';
+    case CorreccionesSolicitadas = 'Correcciones solicitadas';
     case Aprobada = 'Aprobada';
-    case NoAutorizada = 'No autorizada';
-    case Realizada = 'Realizada';
-    case Cancelada = 'Cancelada';
+    case Rechazada = 'Rechazada';
+    case EnEjecucion = 'En ejecucion';
+    case Finalizada = 'Finalizada';
 
-    public function esPublica(): bool
+    public function esVisibleEnCatalogo(): bool
     {
-        return in_array($this, [self::Aprobada, self::Realizada], true);
+        return $this === self::Aprobada
+            || $this === self::EnEjecucion
+            || $this === self::Finalizada;
     }
 }

@@ -13,9 +13,11 @@ class Rol extends Model
 {
     use HasFactory;
 
-    protected $table = 'roles';
+    protected $table = 'Rol';
 
     protected $primaryKey = 'idRol';
+
+    public $timestamps = false;
 
     protected $fillable = ['nombre', 'descripcion'];
 
@@ -26,7 +28,24 @@ class Rol extends Model
 
     public function usuarios(): BelongsToMany
     {
-        return $this->belongsToMany(UsuarioInstitucional::class, 'usuario_rol', 'idRol', 'idUsuario', 'idRol', 'idUsuario')
-            ->using(UsuarioRol::class)->withPivot('idUsuarioRol', 'fechaAsignacion');
+        return $this->belongsToMany(
+            UsuarioInstitucional::class,
+            'UsuarioRol',
+            'idRol',
+            'idUsuario',
+            'idRol',
+            'idUsuario',
+        )->using(UsuarioRol::class)
+            ->withPivot(['idUsuarioRol', 'fechaAsignacion', 'fechaFin']);
+    }
+
+    public static function asegurar(RolSistemaEnum $rol): self
+    {
+        return static::query()->firstOrCreate(['nombre' => $rol->value]);
+    }
+
+    public static function idPara(RolSistemaEnum $rol): int
+    {
+        return (int) static::asegurar($rol)->getKey();
     }
 }

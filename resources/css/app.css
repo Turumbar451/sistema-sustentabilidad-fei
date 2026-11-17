@@ -6,4 +6,16 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Colores base del Manual de Identidad de la Universidad Veracruzana. */
+    --color-uv-blue: #18529d;
+    --color-uv-green: #28ad56;
+    --color-uv-blue-dark: #123d75;
+    --color-uv-green-dark: #16733a;
+    --color-uv-blue-soft: #edf3fb;
+    --color-uv-green-soft: #eaf7ee;
+    --color-ink: #183246;
+    --color-muted: #586a7a;
+    --color-line: #dce4ec;
+    --color-canvas: #f6f8fa;
 }
