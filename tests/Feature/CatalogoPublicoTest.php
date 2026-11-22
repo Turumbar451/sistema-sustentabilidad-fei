@@ -9,13 +9,18 @@ use App\Models\EjeTrabajo;
 use App\Models\EstadoAccion;
 use App\Models\Participacion;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Event;
 
 uses(LazilyRefreshDatabase::class);
 
-it('muestra la portada con un enlace a la consulta de acciones', function () {
-    $this->get(route('inicio'))
+it('muestra el catálogo como página principal y conserva el menú compartido', function () {
+    $this->get('/')
         ->assertOk()
-        ->assertViewIs('index')
+        ->assertViewIs('accion-sustentabilidad.consultar')
+        ->assertSee('Menú de la Coordinadora')
+        ->assertSee('Resumen')
+        ->assertSee('Registrar propuesta')
+        ->assertSee('Evaluación de propuestas')
         ->assertSee('href="'.route('acciones.consultar').'"', false);
 });
 
@@ -96,15 +101,73 @@ it('aplica el orden seleccionado a los resultados', function (string $orden, arr
 
 it('pagina nueve acciones y conserva los filtros en los enlaces', function () {
     AccionSustentabilidad::factory()->aprobada()->count(10)->create(['nombre' => 'Iniciativa paginada']);
+    Event::fake(['eloquent.retrieved: '.AccionSustentabilidad::class]);
 
     $this->get(route('acciones.consultar', ['q' => 'paginada']))
         ->assertOk()
         ->assertViewHas('acciones', fn ($acciones) => $acciones->count() === 9 && $acciones->total() === 10 && str_contains($acciones->nextPageUrl(), 'q=paginada'));
+    Event::assertDispatchedTimes('eloquent.retrieved: '.AccionSustentabilidad::class, 9);
 
     $this->get(route('acciones.consultar', ['q' => 'paginada', 'page' => 2]))
         ->assertOk()
         ->assertViewHas('acciones', fn ($acciones) => $acciones->count() === 1 && $acciones->currentPage() === 2);
+    Event::assertDispatchedTimes('eloquent.retrieved: '.AccionSustentabilidad::class, 10);
 });
+
+it('normaliza la búsqueda y los identificadores de eje recibidos como valores individuales', function (string $parametroEje) {
+    $eje = EjeTrabajo::factory()->create();
+    $objetivo = AccionSustentabilidad::factory()->aprobada()->create([
+        'nombre' => 'Monitoreo de agua',
+        'idEjeTrabajo' => $eje->getKey(),
+    ]);
+    AccionSustentabilidad::factory()->aprobada()->create(['nombre' => 'Otra acción de agua']);
+
+    $this->get(route('acciones.consultar', [
+        'buscar' => '  agua  ',
+        $parametroEje => (string) $eje->getKey(),
+        'orden' => 'az',
+    ]))->assertOk()
+        ->assertViewHas('acciones', fn ($acciones) => $acciones->modelKeys() === [$objetivo->getKey()])
+        ->assertViewHas('filtros', [
+            'q' => 'agua',
+            'idEjeTrabajo' => [$eje->getKey()],
+            'orden' => 'az',
+        ])->assertViewHas('hayFiltros', true);
+})->with(['ejes', 'idEjeTrabajo']);
+
+it('prioriza los parámetros principales sobre los alias y elimina ejes repetidos', function () {
+    $eje = EjeTrabajo::factory()->create();
+    $otroEje = EjeTrabajo::factory()->create();
+    $objetivo = AccionSustentabilidad::factory()->aprobada()->create([
+        'nombre' => 'Monitoreo de agua',
+        'idEjeTrabajo' => $eje->getKey(),
+    ]);
+    AccionSustentabilidad::factory()->aprobada()->create([
+        'nombre' => 'Separación de residuos',
+        'idEjeTrabajo' => $otroEje->getKey(),
+    ]);
+
+    $this->get(route('acciones.consultar', [
+        'q' => 'Monitoreo',
+        'buscar' => 'residuos',
+        'ejes' => [(string) $eje->getKey(), (string) $eje->getKey()],
+        'idEjeTrabajo' => $otroEje->getKey(),
+    ]))->assertOk()
+        ->assertViewHas('acciones', fn ($acciones) => $acciones->modelKeys() === [$objetivo->getKey()])
+        ->assertViewHas('filtros', [
+            'q' => 'Monitoreo',
+            'idEjeTrabajo' => [$eje->getKey()],
+            'orden' => 'recientes',
+        ]);
+});
+
+it('mantiene la consulta sin filtros al cambiar solo el orden o la página', function (array $parametros) {
+    $this->get(route('acciones.consultar', $parametros))
+        ->assertOk()->assertViewHas('hayFiltros', false);
+})->with([
+    'orden' => [['orden' => 'az']],
+    'página' => [['page' => 2]],
+]);
 
 it('muestra el detalle publicado con forma de trabajo y participantes', function () {
     $accion = AccionSustentabilidad::factory()->finalizada()->create([

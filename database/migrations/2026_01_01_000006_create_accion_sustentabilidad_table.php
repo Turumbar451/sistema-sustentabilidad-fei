@@ -8,9 +8,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    //levantar migracion
     public function up(): void
     {
+        //schema es un facade. un facade es una clase que proporciona una interfaz estatica para acceder a clases en el contenedor de servicios de laravel. 
         Schema::create('AccionSustentabilidad', function (Blueprint $table): void {
+            //Blueprint da la interfaz para crear las columnas de la tabla
             $table->increments('idAccion');
             $table->string('folio', 50)->unique();
             $table->string('nombre', 200);
@@ -46,6 +49,7 @@ return new class extends Migration
         });
     }
 
+    //borrar migracion
     public function down(): void
     {
         Schema::dropIfExists('AccionSustentabilidad');

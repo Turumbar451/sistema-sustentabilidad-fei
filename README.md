@@ -49,15 +49,11 @@ Se requiere PHP con la extensión `pdo_mysql`, Composer, Node.js/npm y MySQL 8.4
     php artisan serve
     ```
 
-    La aplicación estará disponible en `http://localhost:8000`.
-
-La portada `/` enlaza a la consulta pública `/acciones`. El detalle de una acción publicada se consulta en `/acciones/{id}`. Esta interfaz permite buscar y filtrar; los formularios de registro y evaluación se desarrollarán en iteraciones posteriores.
-
 ## Base de datos DI-02
 
-El esquema contiene nueve tablas del dominio: `UsuarioInstitucional`, `Rol`, `UsuarioRol`, `EjeTrabajo`, `EstadoAccion`, `AccionSustentabilidad`, `HistorialEstadoAccion`, `Evidencia` y `Participacion`. Laravel conserva además su tabla técnica `migrations`. Los modelos no utilizan `created_at` ni `updated_at`.
+El esquema contiene nueve tablas del dominio: `UsuarioInstitucional`, `Rol`, `UsuarioRol`, `EjeTrabajo`, `EstadoAccion`, `AccionSustentabilidad`, `HistorialEstadoAccion`, `Evidencia` y `Participacion`. Laravel conserva además su tabla técnica `migrations`.
 
-Sesiones y caché usan archivos, y las colas se ejecutan de forma síncrona. Si ya existe una configuración local, establecer `SESSION_DRIVER=file`, `CACHE_STORE=file` y `QUEUE_CONNECTION=sync`; no se requieren las tablas `sessions`, `cache` ni `jobs`.
+Sesiones y caché usan archivos. Si ya existe una configuración local, establecer `SESSION_DRIVER=file`, `CACHE_STORE=file` y `QUEUE_CONNECTION=sync`; no se requieren las tablas `sessions`, `cache` ni `jobs`.
 
 Para reemplazar el esquema anterior en una base **local de desarrollo**, el siguiente comando elimina todas sus tablas y carga los datos de ejemplo:
 
@@ -65,9 +61,30 @@ Para reemplazar el esquema anterior en una base **local de desarrollo**, el sigu
 php artisan migrate:fresh --seed
 ```
 
-El sembrado crea cuatro roles, cinco ejes, seis estados y quince acciones con historial, participaciones y evidencias de ejemplo. Las rutas de evidencias son simuladas: no se crean archivos físicos. Solo se publican acciones aprobadas, en ejecución o finalizadas.
-
 La autenticación de sesión utiliza `UsuarioInstitucional`, sin columnas locales de contraseña o token de recuerdo. La conexión con el proveedor institucional sigue pendiente.
+
+## Organización MVC
+
+El controlador coordina las peticiones y devuelve las vistas o redirecciones. Las consultas y el registro se ejecutan en la capa de modelo, sin dependencias de Blade ni respuestas HTTP.
+
+- `app/Http/Requests/AccionSustentabilidad/ConsultarAccionesRequest.php`: valida los parámetros de consulta y normaliza sus filtros y alias.
+- `app/Builders/AccionSustentabilidadBuilder.php`: reúne los filtros, el orden y las relaciones de las consultas Eloquent del catálogo.
+- `app/Models/AccionSustentabilidad.php`: define atributos, relaciones y operaciones del registro; ofrece consultas completas o paginadas utilizando su Builder.
+- `app/Actions/AccionSustentabilidad/RegistrarPropuesta.php`: coordina el registro, la elección del estado inicial, el historial y las evidencias dentro de una transacción; elimina los archivos nuevos si la operación falla.
+
+El controlador recibe una instancia de `RegistrarPropuesta` mediante la inyección de dependencias de Laravel y llama a su método `ejecutar()`. La operación se trasladó desde `AccionSustentabilidad::registrarNuevaPropuesta()`. Los listados conservan `obtenerAccionesPublicadas()` y la interfaz usa `paginarAccionesPublicadas()` para cargar solo los registros de la página solicitada.
+
+`RegistrarAccionRequest` conserva la autorización y las reglas del formulario. `EjeTrabajo::obtenerTodos()` proporciona los ejes ordenados por nombre. El controlador usa estos métodos sin construir consultas de base de datos.
+
+## Acceso temporal de la Coordinadora
+
+En `local`, todas las rutas web usan automáticamente a Ana Luz Polo Estrella (`P0001`) como Coordinadora de Sustentabilidad. El middleware `ForzarCoordinadoraLocal`, aplicado en `routes/web.php`, asigna la identidad en memoria para cada petición; no crea usuarios, roles ni inicios de sesión persistentes. Fuera de `local` no asigna identidades.
+
+Abrir `/acciones/registrar`, completar el formulario y pulsar **Enviar propuesta**. Las propuestas de la Coordinadora se guardan como **Aprobada**, con o sin evidencias, y aparecen en el catálogo público. `Realizada` no es un estado del DI-02 vigente.
+
+El DI-02 exige que el solicitante y quien carga evidencias existan en `UsuarioInstitucional`. Se reutiliza el ID existente de `P0001`, incluido en los datos de ejemplo. Si falta, es posible navegar con la identidad en memoria, pero el guardado devuelve un error de validación sin crear usuarios ni alterar las claves foráneas.
+
+Para retirar el acceso temporal al integrar CU-01, eliminar el middleware y su aplicación al grupo de rutas. La aprobación directa de propuestas de la Coordinadora es una regla del dominio independiente de este acceso temporal.
 
 ## Pruebas automatizadas
 
@@ -89,4 +106,4 @@ php artisan test --filter=NombreDeLaPrueba
 
 ## Seguridad
 
-No versionar `.env`, `.env.testing` ni otras credenciales. El archivo `.env.example` debe contener únicamente valores de referencia, nunca contraseñas o secretos reales. La aplicación utiliza una cuenta MySQL propia y no la cuenta administrativa `root`.
+No versionar `.env`, `.env.testing` ni otras credenciales. El archivo `.env.example` debe contener únicamente valores de referencia, nunca contraseñas o secretos reales.

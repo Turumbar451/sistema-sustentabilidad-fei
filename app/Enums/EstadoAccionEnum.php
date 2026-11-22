@@ -19,4 +19,13 @@ enum EstadoAccionEnum: string
             || $this === self::EnEjecucion
             || $this === self::Finalizada;
     }
+
+    /** @return list<string> */
+    public static function valoresVisiblesEnCatalogo(): array
+    {
+        return array_values(array_map(
+            static fn (self $estado): string => $estado->value,
+            array_filter(self::cases(), static fn (self $estado): bool => $estado->esVisibleEnCatalogo()),
+        ));
+    }
 }
