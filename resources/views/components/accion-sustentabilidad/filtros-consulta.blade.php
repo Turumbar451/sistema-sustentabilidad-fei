@@ -60,12 +60,12 @@
     </div>
 
     <div class="mt-5">
-        <label for="estado" class="block text-sm font-semibold text-ink">Estado de la iniciativa</label>
+        <label for="estado" class="block text-sm font-semibold text-ink">Estado de la acción de sustentabilidad</label>
         <select id="estado" name="estado"
                 class="mt-3 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-uv-blue">
             <option value="">Todos</option>
             @foreach ($estados as $estado)
-                <option value="{{ $estado }}" @selected(($filtros['estado'] ?? '') === $estado)>{{ $estado }}</option>
+                <option value="{{ $estado }}" @selected(($filtros['estado'] ?? '') === $estado)>{{ \App\Enums\EstadoAccionEnum::from($estado)->etiqueta() }}</option>
             @endforeach
         </select>
     </div>

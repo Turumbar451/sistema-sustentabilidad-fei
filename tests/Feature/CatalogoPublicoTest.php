@@ -19,6 +19,7 @@ it('muestra el catálogo como página principal con el menú público para visit
         ->assertViewIs('accion-sustentabilidad.consultar')
         ->assertSee('Menú principal')
         ->assertSee('Catálogo público')
+        ->assertSee('Aún no hay acciones de sustentabilidad publicadas')
         ->assertDontSee('Menú de la Coordinadora')
         ->assertDontSee('Mis propuestas')
         ->assertDontSee('Registrar propuesta')
@@ -36,7 +37,7 @@ it('muestra acciones publicadas reales y oculta las propuestas pendientes', func
     $this->get(route('acciones.consultar'))
         ->assertOk()
         ->assertViewIs('accion-sustentabilidad.consultar')
-        ->assertSee('Explora las iniciativas')
+        ->assertSee('Explora las acciones de sustentabilidad')
         ->assertSee('Jornada pública de recuperación verde')
         ->assertSee('Recuperación de espacios universitarios.')
         ->assertDontSee('Propuesta privada')
@@ -80,6 +81,38 @@ it('conecta cada filtro del catálogo con su criterio del dominio', function (st
         ->assertOk()
         ->assertViewHas('acciones', fn ($acciones) => $acciones->total() === 1 && $acciones->first()->idAccion === $objetivo->getKey());
 })->with(['ejes', 'modalidad', 'formaTrabajo', 'estado']);
+
+it('muestra las etiquetas de estados públicos y conserva sus valores en la base y el filtro', function (EstadoAccionEnum $estado, string $valor, string $etiqueta) {
+    $accion = AccionSustentabilidad::factory()->enEstado($estado)->create([
+        'nombre' => 'Acción de prueba de etiquetas',
+    ]);
+
+    $respuesta = $this->get(route('acciones.consultar', ['estado' => $valor]))
+        ->assertOk()
+        ->assertViewHas('acciones', fn ($acciones) => $acciones->modelKeys() === [$accion->getKey()])
+        ->assertViewHas('filtros', fn (array $filtros) => $filtros['estado'] === $valor);
+
+    $documento = new DOMDocument;
+    $documento->loadHTML('<?xml encoding="UTF-8">'.$respuesta->getContent(), LIBXML_NOERROR | LIBXML_NOWARNING);
+    $xpath = new DOMXPath($documento);
+    $opciones = $xpath->query('//select[@name="estado"]/option[@value="'.$valor.'"]');
+    expect($opciones->length)->toBe(1);
+    expect(trim($opciones->item(0)->textContent))->toBe($etiqueta);
+    expect($opciones->item(0)->hasAttribute('selected'))->toBeTrue();
+
+    $tarjeta = $xpath->query('//article[@aria-labelledby="accion-'.$accion->getKey().'"]')->item(0);
+    expect($tarjeta)->not->toBeNull();
+    expect($tarjeta->textContent)->toContain($etiqueta);
+    expect($accion->estadoAccion->nombre->value)->toBe($valor);
+
+    $this->get(route('acciones.detalle', ['accionSustentabilidad' => $accion]))
+        ->assertOk()
+        ->assertSee($etiqueta);
+})->with([
+    'aprobada' => [EstadoAccionEnum::Aprobada, 'Aprobada', 'Aprobada'],
+    'en ejecución' => [EstadoAccionEnum::EnEjecucion, 'En ejecucion', 'En ejecución'],
+    'finalizada' => [EstadoAccionEnum::Finalizada, 'Finalizada', 'Finalizada'],
+]);
 
 it('aplica el orden seleccionado a los resultados', function (string $orden, array $folios) {
     AccionSustentabilidad::factory()->aprobada()->create([
@@ -188,6 +221,7 @@ it('muestra el detalle publicado con forma de trabajo y participantes', function
         ->assertSee('Acción concluida')
         ->assertSee('Equipo conformado')
         ->assertSee('Material reutilizable')
+        ->assertSee('Descripción de la acción de sustentabilidad')
         ->assertSee('12/11/2026')
         ->assertSee('01/11/2026')
         ->assertSee('Por definir')
@@ -214,6 +248,9 @@ it('rechaza filtros malformados antes de consultar el catálogo', function (stri
     'modalidad como arreglo' => ['modalidad', ['Virtual']],
     'forma desconocida' => ['formaTrabajo', 'Colectiva'],
     'estado desconocido' => ['estado', 'Borrador'],
+    'estado pendiente interno' => ['estado', 'Pendiente de revision'],
+    'estado con correcciones interno' => ['estado', 'Correcciones solicitadas'],
+    'estado rechazado interno' => ['estado', 'Rechazada'],
     'orden malicioso' => ['orden', 'nombre desc; drop table Rol'],
     'pagina cero' => ['page', 0],
 ]);

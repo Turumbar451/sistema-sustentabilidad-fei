@@ -47,10 +47,10 @@ class RegistrarAccionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nombre.required' => 'Escribe el nombre de la iniciativa.',
+            'nombre.required' => 'Escribe el nombre de la propuesta.',
             'nombre.string' => 'El nombre debe ser un texto.',
             'nombre.max' => 'El nombre no puede superar los 200 caracteres.',
-            'descripcion.required' => 'Describe la iniciativa.',
+            'descripcion.required' => 'Describe la propuesta.',
             'descripcion.string' => 'La descripción debe ser un texto.',
             'descripcion.max' => 'La descripción no puede superar los 1200 caracteres.',
             'idEjeTrabajo.required' => 'Selecciona un eje de trabajo.',

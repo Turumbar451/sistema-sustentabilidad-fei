@@ -33,7 +33,7 @@ class ConsultarAccionesRequest extends FormRequest
             'ejes.*' => ['integer', 'min:1'],
             'modalidad' => ['nullable', 'string', 'max:100'],
             'formaTrabajo' => ['nullable', Rule::enum(FormaTrabajoEnum::class)],
-            'estado' => ['nullable', Rule::enum(EstadoAccionEnum::class)],
+            'estado' => ['nullable', Rule::in(EstadoAccionEnum::valoresVisiblesEnCatalogo())],
             'orden' => ['sometimes', Rule::in(['recientes', 'proximas', 'az'])],
             'page' => ['sometimes', 'integer', 'min:1'],
         ];

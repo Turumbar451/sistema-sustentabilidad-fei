@@ -9,7 +9,7 @@
             <p class="text-xs font-semibold uppercase tracking-widest text-uv-green-soft">Catálogo público</p>
             <h1 id="consulta-titulo" class="mt-4 max-w-2xl text-3xl font-bold leading-tight text-white sm:text-4xl">Consulta de acciones de sustentabilidad</h1>
             <p class="mt-4 max-w-xl text-sm leading-relaxed text-white/90">
-                Explora las iniciativas autorizadas de nuestra comunidad universitaria.
+                Explora las acciones de sustentabilidad autorizadas de nuestra comunidad universitaria.
             </p>
         </div>
     </section>
@@ -27,18 +27,18 @@
             </aside>
 
             <section class="min-w-0 lg:col-span-9" aria-label="Resultados del catálogo" aria-live="polite">
-                <h2 class="text-2xl font-bold text-ink">Explora las iniciativas</h2>
+                <h2 class="text-2xl font-bold text-ink">Explora las acciones de sustentabilidad</h2>
                 <p class="mt-2 text-sm text-muted">Consulta acciones autorizadas para la comunidad y el público.</p>
 
                 @if ($acciones->isEmpty())
                     <div class="mt-6 rounded-xl border border-dashed border-line bg-white px-6 py-16 text-center">
                         <h3 class="text-base font-bold text-ink">
-                            {{ $hayFiltros ? 'No encontramos iniciativas' : 'Aún no hay iniciativas publicadas' }}
+                            {{ $hayFiltros ? 'No encontramos acciones de sustentabilidad' : 'Aún no hay acciones de sustentabilidad publicadas' }}
                         </h3>
                         <p class="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted">
                             {{ $hayFiltros
                                 ? 'Prueba con otro término de búsqueda o quita algunos filtros para ampliar los resultados.'
-                                : 'Las iniciativas autorizadas aparecerán aquí cuando estén disponibles.' }}
+                                : 'Las acciones de sustentabilidad autorizadas aparecerán aquí cuando estén disponibles.' }}
                         </p>
                         @if ($hayFiltros)
                             <a href="{{ route('acciones.consultar') }}" class="mt-5 inline-flex rounded-lg border border-line px-4 py-2 text-sm font-semibold text-uv-blue hover:bg-canvas focus:outline-none focus-visible:ring-2 focus-visible:ring-uv-blue focus-visible:ring-offset-2">
@@ -53,7 +53,7 @@
                         @endforeach
                     </div>
                     <p class="mt-8 text-center text-xs font-medium text-muted">
-                        Mostrando {{ $acciones->firstItem() }}–{{ $acciones->lastItem() }} de {{ $acciones->total() }} iniciativas
+                        Mostrando {{ $acciones->firstItem() }}–{{ $acciones->lastItem() }} de {{ $acciones->total() }} acciones de sustentabilidad
                     </p>
                     @if ($acciones->hasPages())
                         <div class="mt-5">{{ $acciones->withQueryString()->links() }}</div>

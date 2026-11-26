@@ -8,7 +8,7 @@
             <div class="border-b-4 border-uv-green bg-uv-blue px-6 py-8 text-white sm:px-8 sm:py-10">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <p class="text-xs font-semibold uppercase tracking-wider">{{ $accion->folio }}</p>
-                    <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-uv-blue">{{ $accion->estadoAccion?->nombre?->value ?? 'Sin estado' }}</span>
+                    <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-uv-blue">{{ $accion->estadoAccion?->nombre?->etiqueta() ?? 'Sin estado' }}</span>
                 </div>
                 <h1 class="mt-4 text-2xl font-bold leading-tight sm:text-3xl">{{ $accion->nombre }}</h1>
                 <p class="mt-3 text-sm text-white/90">{{ $accion->ejeTrabajo?->nombre ?? 'Sin eje asignado' }}</p>
@@ -17,7 +17,7 @@
             <div class="grid gap-8 p-6 sm:p-8 lg:grid-cols-3">
                 <div class="space-y-8 lg:col-span-2">
                     <section aria-labelledby="descripcion-titulo">
-                        <h2 id="descripcion-titulo" class="text-lg font-bold text-ink">Descripción de la iniciativa</h2>
+                        <h2 id="descripcion-titulo" class="text-lg font-bold text-ink">Descripción de la acción de sustentabilidad</h2>
                         <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted">{{ $accion->descripcion ?: 'No hay una descripción disponible.' }}</p>
                     </section>
 
@@ -49,7 +49,7 @@
                             <dd class="mt-1 font-semibold">{{ $accion->fechaTerminoFormateada ?? 'Por definir' }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-semibold text-muted">Responsable de la propuesta</dt>
+                            <dt class="text-xs font-semibold text-muted">Responsable de la acción de sustentabilidad</dt>
                             <dd class="mt-1 font-semibold">{{ $accion->solicitante?->nombreCompleto ?? 'No disponible' }}</dd>
                         </div>
                         <div>

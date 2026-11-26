@@ -9,6 +9,9 @@
       · $ejesTrabajo: colección de ejes de trabajo de la base de datos.
 --}}
 <x-layouts.app title="Registro de propuesta">
+    @php
+        $esCoordinadora = auth('web')->user()?->tieneRol(\App\Enums\RolSistemaEnum::CoordinadoraSustentabilidad) ?? false;
+    @endphp
 
     <div class="mx-auto w-full max-w-7xl">
 
@@ -19,7 +22,7 @@
                     Nueva propuesta
                 </h1>
                 <p class="mt-1.5 text-sm text-gray-600">
-                    Completa la información para registrar tu iniciativa.
+                    Completa la información para registrar tu propuesta.
                 </p>
             </div>
 
@@ -36,7 +39,7 @@
                     1
                 </span>
                 <span class="min-w-0">
-                    <span class="block truncate text-[13px] font-semibold text-gray-900">Datos de la iniciativa</span>
+                    <span class="block truncate text-[13px] font-semibold text-gray-900">Datos de la propuesta</span>
                     <span class="block truncate text-[11px] text-gray-500">Completa los campos requeridos</span>
                 </span>
             </div>
@@ -48,8 +51,14 @@
                     2
                 </span>
                 <span class="min-w-0">
-                    <span class="block truncate text-[13px] font-semibold text-gray-600">Registro de la iniciativa</span>
-                    <span class="block truncate text-[11px] text-gray-500">Las propuestas de la Coordinadora se aprueban al registrarse</span>
+                    <span class="block text-[13px] font-semibold text-gray-600">{{ $esCoordinadora ? 'Aprobación y publicación' : 'Registro para evaluación' }}</span>
+                    <span class="block text-[11px] text-gray-500">
+                        @if ($esCoordinadora)
+                            Tu propuesta queda aprobada directamente y se publica en el catálogo.
+                        @else
+                            Tu propuesta queda {{ \App\Enums\EstadoAccionEnum::PendienteDeRevision->etiqueta() }} para evaluación de la Coordinadora antes de publicarse.
+                        @endif
+                    </span>
                 </span>
             </div>
         </div>
@@ -89,7 +98,7 @@
                         {{-- Nombre --}}
                         <div>
                             <label for="nombre" class="mb-1.5 block text-[13px] font-semibold text-gray-700">
-                                Nombre de la iniciativa
+                                Nombre de la propuesta
                                 <span class="text-red-600" aria-hidden="true">*</span>
                                 <span class="sr-only">(obligatorio)</span>
                             </label>
@@ -332,8 +341,6 @@
                         </a>
 
                         <button type="submit"
-                                name="accion"
-                                value="enviar"
                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-uv-green px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#229348] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#28AD56] focus-visible:ring-offset-2">
                             Enviar propuesta
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -401,11 +408,19 @@
                         </li>
                         <li class="flex gap-3">
                             <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-[10px] font-bold text-[#1B7A40]" aria-hidden="true">2</span>
-                            <p class="text-[12px] leading-relaxed text-gray-800">La propuesta de la Coordinadora queda aprobada directamente.</p>
+                            @if ($esCoordinadora)
+                                <p class="text-[12px] leading-relaxed text-gray-800">La propuesta queda aprobada directamente.</p>
+                            @else
+                                <p class="text-[12px] leading-relaxed text-gray-800">La propuesta se registra como {{ \App\Enums\EstadoAccionEnum::PendienteDeRevision->etiqueta() }}.</p>
+                            @endif
                         </li>
                         <li class="flex gap-3">
                             <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-[10px] font-bold text-[#1B7A40]" aria-hidden="true">3</span>
-                            <p class="text-[12px] leading-relaxed text-gray-800">La iniciativa aparece en el catálogo público.</p>
+                            @if ($esCoordinadora)
+                                <p class="text-[12px] leading-relaxed text-gray-800">La acción de sustentabilidad se publica en el catálogo público.</p>
+                            @else
+                                <p class="text-[12px] leading-relaxed text-gray-800">La Coordinadora evalúa la propuesta antes de publicarla en el catálogo público.</p>
+                            @endif
                         </li>
                     </ol>
                 </section>

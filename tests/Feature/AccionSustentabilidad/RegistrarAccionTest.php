@@ -46,9 +46,44 @@ it('muestra el formulario antes de resolver el detalle y utiliza los ejes reales
         ->assertSee('name="_token"', false)
         ->assertSee('value="'.$alfa->getKey().'"', false)
         ->assertSee('name="formaTrabajo"', false)
+        ->assertSee('Nombre de la propuesta')
+        ->assertDontSee('name="accion"', false)
+        ->assertDontSee('value="enviar"', false)
         ->assertSee('Mis propuestas')
         ->assertDontSee('Evaluación de propuestas')
         ->assertDontSee('Menú de la Coordinadora');
+});
+
+it('explica la revisión de la Coordinadora antes de publicar propuestas de estudiantes y maestros', function (RolSistemaEnum $rol) {
+    $usuario = UsuarioInstitucional::factory()->create();
+    $usuario->asignarRol($rol);
+
+    $this->actingAs($usuario)->get(route('acciones.formulario-registro'))
+        ->assertOk()
+        ->assertSee('Registro para evaluación')
+        ->assertSee('Tu propuesta queda Pendiente de revisión para evaluación de la Coordinadora antes de publicarse.')
+        ->assertSee('La propuesta se registra como Pendiente de revisión.')
+        ->assertSee('La Coordinadora evalúa la propuesta antes de publicarla en el catálogo público.')
+        ->assertDontSee('Aprobación y publicación')
+        ->assertDontSee('La propuesta queda aprobada directamente.');
+})->with([
+    'estudiante' => [RolSistemaEnum::Estudiante],
+    'maestro' => [RolSistemaEnum::Maestro],
+]);
+
+it('explica la aprobación directa y la publicación al registrar una propuesta de la Coordinadora', function () {
+    $usuario = UsuarioInstitucional::factory()->create();
+    $usuario->asignarRol(RolSistemaEnum::CoordinadoraSustentabilidad);
+
+    $this->actingAs($usuario)->get(route('acciones.formulario-registro'))
+        ->assertOk()
+        ->assertSee('Aprobación y publicación')
+        ->assertSee('Tu propuesta queda aprobada directamente y se publica en el catálogo.')
+        ->assertSee('La propuesta queda aprobada directamente.')
+        ->assertSee('La acción de sustentabilidad se publica en el catálogo público.')
+        ->assertDontSee('Registro para evaluación')
+        ->assertDontSee('Pendiente de revisión')
+        ->assertDontSee('La Coordinadora evalúa la propuesta antes de publicarla en el catálogo público.');
 });
 
 it('rechaza el registro sin usuario fuera de local y no guarda datos ni archivos', function () {
@@ -172,10 +207,10 @@ it('valida los campos del dominio antes de insertar la propuesta', function (str
     $this->assertDatabaseCount('AccionSustentabilidad', 0);
     $this->assertDatabaseCount('HistorialEstadoAccion', 0);
 })->with([
-    'nombre obligatorio' => ['nombre', '', 'Escribe el nombre de la iniciativa.'],
+    'nombre obligatorio' => ['nombre', '', 'Escribe el nombre de la propuesta.'],
     'nombre texto' => ['nombre', ['incorrecto'], 'El nombre debe ser un texto.'],
     'nombre supera la columna' => ['nombre', str_repeat('N', 201), 'El nombre no puede superar los 200 caracteres.'],
-    'descripción obligatoria' => ['descripcion', '', 'Describe la iniciativa.'],
+    'descripción obligatoria' => ['descripcion', '', 'Describe la propuesta.'],
     'descripción texto' => ['descripcion', ['incorrecto'], 'La descripción debe ser un texto.'],
     'descripción extensa' => ['descripcion', str_repeat('D', 1201), 'La descripción no puede superar los 1200 caracteres.'],
     'eje obligatorio' => ['idEjeTrabajo', '', 'Selecciona un eje de trabajo.'],

@@ -13,6 +13,18 @@ enum EstadoAccionEnum: string
     case EnEjecucion = 'En ejecucion';
     case Finalizada = 'Finalizada';
 
+    public function etiqueta(): string
+    {
+        return match ($this) {
+            self::PendienteDeRevision => 'Pendiente de revisión',
+            self::CorreccionesSolicitadas => 'Correcciones solicitadas',
+            self::Aprobada => 'Aprobada',
+            self::Rechazada => 'Rechazada',
+            self::EnEjecucion => 'En ejecución',
+            self::Finalizada => 'Finalizada',
+        };
+    }
+
     public function esVisibleEnCatalogo(): bool
     {
         return $this === self::Aprobada
