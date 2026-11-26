@@ -1,26 +1,30 @@
 @php
     $enlaces = [
         [
-            'nombre' => 'Resumen',
-            'url' => '#',
+            'nombre' => 'Mis propuestas',
+            'url' => null,
+            'visible' => $puedeRegistrarPropuestas,
             'activo' => false,
             'icono' => 'M3 12h4v8H3v-8Zm7-8h4v16h-4V4Zm7 5h4v11h-4V9Z',
         ],
         [
             'nombre' => 'Registrar propuesta',
             'url' => route('acciones.formulario-registro'),
+            'visible' => $puedeRegistrarPropuestas,
             'activo' => request()->routeIs('acciones.formulario-registro', 'acciones.registrar'),
             'icono' => 'M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9m-6-6 6 6m-6-6v6h6M8 14h8m-4-4v8',
         ],
         [
             'nombre' => 'Evaluación de propuestas',
-            'url' => '#',
+            'url' => null,
+            'visible' => $puedeEvaluarPropuestas,
             'activo' => false,
             'icono' => 'M9 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3M9 3h6v4H9V3Zm-1 11 3 3 5-6',
         ],
         [
             'nombre' => 'Catálogo público',
             'url' => route('acciones.consultar'),
+            'visible' => true,
             'activo' => request()->routeIs('acciones.consultar', 'acciones.detalle'),
             'icono' => 'M3 3h7v7H3V3Zm11 0h7v7h-7V3ZM3 14h7v7H3v-7Zm11 0h7v7h-7v-7Z',
         ],
@@ -46,7 +50,7 @@
     </a>
 
     <aside class="border-t-4 border-b border-t-uv-green border-b-line bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-r-line lg:border-b-0"
-           aria-label="Panel de la Coordinadora">
+           aria-label="Panel de navegación">
         <a href="{{ route('acciones.consultar') }}"
            class="flex min-h-20 items-center gap-3 px-5 py-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uv-blue"
            aria-label="FEI Sustentabilidad, inicio">
@@ -56,23 +60,32 @@
             <span class="text-lg font-bold text-uv-blue">FEI <span class="text-sm font-medium text-ink">Sustentabilidad</span></span>
         </a>
 
-        <nav class="px-3 pb-5 lg:flex-1 lg:overflow-y-auto" aria-label="Menú de la Coordinadora">
+        <nav class="px-3 pb-5 lg:flex-1 lg:overflow-y-auto" aria-label="Menú principal">
             <p class="px-3 py-3 text-xs font-semibold tracking-wider text-muted uppercase">Espacio de trabajo</p>
             <ul class="grid gap-1 sm:grid-cols-2 lg:grid-cols-1">
                 @foreach ($enlaces as $enlace)
+                    @continue(! $enlace['visible'])
                     <li>
-                        <a href="{{ $enlace['url'] }}"
-                           @if ($enlace['activo']) aria-current="page" @endif
-                           @class([
-                               'flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uv-blue',
-                               'bg-uv-green-soft font-semibold text-uv-green-dark' => $enlace['activo'],
-                               'font-medium text-muted hover:bg-canvas hover:text-uv-blue' => ! $enlace['activo'],
-                           ])>
+                        @if ($enlace['url'] !== null)
+                            <a href="{{ $enlace['url'] }}"
+                               @if ($enlace['activo']) aria-current="page" @endif
+                               @class([
+                                   'flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uv-blue',
+                                   'bg-uv-green-soft font-semibold text-uv-green-dark' => $enlace['activo'],
+                                   'font-medium text-muted hover:bg-canvas hover:text-uv-blue' => ! $enlace['activo'],
+                               ])>
+                        @else
+                            <span aria-disabled="true" class="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-muted opacity-60">
+                        @endif
                             <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                                 <path d="{{ $enlace['icono'] }}" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                             <span>{{ $enlace['nombre'] }}</span>
-                        </a>
+                        @if ($enlace['url'] !== null)
+                            </a>
+                        @else
+                            </span>
+                        @endif
                     </li>
                 @endforeach
             </ul>

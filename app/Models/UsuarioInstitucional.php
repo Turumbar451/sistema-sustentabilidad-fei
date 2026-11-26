@@ -91,19 +91,33 @@ class UsuarioInstitucional extends Authenticatable
 
     public function tieneRol(RolSistemaEnum|string $rol): bool
     {
-        $rol = is_string($rol) ? RolSistemaEnum::tryFrom($rol) : $rol;
+        return $this->tieneAlgunRol([$rol]);
+    }
 
-        if ($rol === null) {
+    /** @param array<RolSistemaEnum|string> $roles */
+    public function tieneAlgunRol(array $roles): bool
+    {
+        $roles = array_values(array_filter(array_map(
+            static fn (RolSistemaEnum|string $rol): ?RolSistemaEnum => is_string($rol)
+                ? RolSistemaEnum::tryFrom($rol)
+                : $rol,
+            $roles,
+        )));
+
+        if ($roles === []) {
             return false;
         }
 
         if ($this->relationLoaded('rolesVigentes')) {
             return $this->rolesVigentes->contains(
-                static fn (Rol $asignado): bool => $asignado->nombre === $rol,
+                static fn (Rol $asignado): bool => in_array($asignado->nombre, $roles, true),
             );
         }
 
-        return $this->rolesVigentes()->where('Rol.nombre', $rol->value)->exists();
+        return $this->rolesVigentes()->whereIn(
+            'Rol.nombre',
+            array_map(static fn (RolSistemaEnum $rol): string => $rol->value, $roles),
+        )->exists();
     }
 
     public function asignarRol(

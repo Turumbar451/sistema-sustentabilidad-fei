@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\AccionSustentabilidad;
 
 use App\Enums\FormaTrabajoEnum;
+use App\Enums\RolSistemaEnum;
 use App\Models\EjeTrabajo;
 use App\Models\UsuarioInstitucional;
 use Illuminate\Foundation\Http\FormRequest;
@@ -14,7 +15,13 @@ class RegistrarAccionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user() instanceof UsuarioInstitucional;
+        $usuario = $this->user();
+
+        return $usuario instanceof UsuarioInstitucional && $usuario->tieneAlgunRol([
+            RolSistemaEnum::Estudiante,
+            RolSistemaEnum::Maestro,
+            RolSistemaEnum::CoordinadoraSustentabilidad,
+        ]);
     }
 
     /**

@@ -13,14 +13,16 @@ use Illuminate\Support\Facades\Event;
 
 uses(LazilyRefreshDatabase::class);
 
-it('muestra el catálogo como página principal y conserva el menú compartido', function () {
+it('muestra el catálogo como página principal con el menú público para visitantes', function () {
     $this->get('/')
         ->assertOk()
         ->assertViewIs('accion-sustentabilidad.consultar')
-        ->assertSee('Menú de la Coordinadora')
-        ->assertSee('Resumen')
-        ->assertSee('Registrar propuesta')
-        ->assertSee('Evaluación de propuestas')
+        ->assertSee('Menú principal')
+        ->assertSee('Catálogo público')
+        ->assertDontSee('Menú de la Coordinadora')
+        ->assertDontSee('Mis propuestas')
+        ->assertDontSee('Registrar propuesta')
+        ->assertDontSee('Evaluación de propuestas')
         ->assertSee('href="'.route('acciones.consultar').'"', false);
 });
 

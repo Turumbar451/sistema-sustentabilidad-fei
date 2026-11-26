@@ -33,10 +33,11 @@ function datosRegistroDeAccion(EjeTrabajo $eje): array
 }
 
 it('muestra el formulario antes de resolver el detalle y utiliza los ejes reales ordenados', function () {
+    $usuario = UsuarioInstitucional::factory()->estudiante()->create();
     $zeta = EjeTrabajo::factory()->create(['nombre' => 'Zeta']);
     $alfa = EjeTrabajo::factory()->create(['nombre' => 'Alfa']);
 
-    $this->get(route('acciones.formulario-registro'))
+    $this->actingAs($usuario)->get(route('acciones.formulario-registro'))
         ->assertOk()
         ->assertViewIs('accion-sustentabilidad.registrar')
         ->assertViewHas('ejesTrabajo', fn ($ejes) => $ejes->modelKeys() === [$alfa->getKey(), $zeta->getKey()])
@@ -45,9 +46,9 @@ it('muestra el formulario antes de resolver el detalle y utiliza los ejes reales
         ->assertSee('name="_token"', false)
         ->assertSee('value="'.$alfa->getKey().'"', false)
         ->assertSee('name="formaTrabajo"', false)
-        ->assertSee('Resumen')
-        ->assertSee('Evaluación de propuestas')
-        ->assertSee('Menú de la Coordinadora');
+        ->assertSee('Mis propuestas')
+        ->assertDontSee('Evaluación de propuestas')
+        ->assertDontSee('Menú de la Coordinadora');
 });
 
 it('rechaza el registro sin usuario fuera de local y no guarda datos ni archivos', function () {
@@ -62,7 +63,7 @@ it('rechaza el registro sin usuario fuera de local y no guarda datos ni archivos
 
 it('registra la propuesta del usuario actual como pendiente e ignora campos controlados por el servidor', function (string $forma) {
     $this->travelTo('2026-11-18 10:00:00');
-    $usuario = UsuarioInstitucional::factory()->create();
+    $usuario = UsuarioInstitucional::factory()->estudiante()->create();
     $otroUsuario = UsuarioInstitucional::factory()->create();
     $eje = EjeTrabajo::factory()->create();
     $estadoAprobada = EstadoAccion::idPara(EstadoAccionEnum::Aprobada);
@@ -160,7 +161,7 @@ it('guarda evidencias PDF JPG y PNG hasta cinco MB con rutas generadas y el usua
 });
 
 it('valida los campos del dominio antes de insertar la propuesta', function (string $campo, mixed $valor, string $mensaje) {
-    $usuario = UsuarioInstitucional::factory()->create();
+    $usuario = UsuarioInstitucional::factory()->estudiante()->create();
     $eje = EjeTrabajo::factory()->create();
 
     $this->actingAs($usuario)->postJson(route('acciones.registrar'), [
@@ -192,7 +193,7 @@ it('valida los campos del dominio antes de insertar la propuesta', function (str
 
 it('rechaza evidencias no permitidas o mayores de cinco MB sin guardar archivos', function (string $caso) {
     Storage::fake('public');
-    $usuario = UsuarioInstitucional::factory()->create();
+    $usuario = UsuarioInstitucional::factory()->estudiante()->create();
     $eje = EjeTrabajo::factory()->create();
     [$archivo, $mensaje] = match ($caso) {
         'tipo inválido' => [UploadedFile::fake()->create('programa.exe', 10, 'application/x-msdownload'), 'Las evidencias solo pueden ser archivos PDF, JPG o PNG.'],
@@ -211,7 +212,7 @@ it('rechaza evidencias no permitidas o mayores de cinco MB sin guardar archivos'
 
 it('inspecciona el contenido real de una evidencia aunque el cliente la presente como JPG', function () {
     Storage::fake('public');
-    $usuario = UsuarioInstitucional::factory()->create();
+    $usuario = UsuarioInstitucional::factory()->estudiante()->create();
     $eje = EjeTrabajo::factory()->create();
     $temporal = UploadedFile::fake()->createWithContent('foto.jpg', '<?php echo "archivo inválido";');
     $archivo = new UploadedFile($temporal->getPathname(), 'foto.jpg', 'image/jpeg', null, true);
@@ -229,7 +230,7 @@ it('inspecciona el contenido real de una evidencia aunque el cliente la presente
 });
 
 it('conserva los datos del formulario y muestra errores escapando el contenido anterior', function () {
-    $usuario = UsuarioInstitucional::factory()->create();
+    $usuario = UsuarioInstitucional::factory()->estudiante()->create();
     $eje = EjeTrabajo::factory()->create();
     $nombre = '<script>alert("xss")</script>';
     $formulario = route('acciones.formulario-registro');
