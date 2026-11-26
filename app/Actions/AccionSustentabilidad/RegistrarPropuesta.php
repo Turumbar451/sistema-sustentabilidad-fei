@@ -20,7 +20,17 @@ use Throwable;
 class RegistrarPropuesta
 {
     /**
-     * @param  array{nombre: string, descripcion: string, idEjeTrabajo: int|string, modalidad: string, formaTrabajo: string, fechaInicio: string, fechaTermino: string, requerimientos?: ?string, idUsuarioSolicitante?: int}  $datosValidados
+     * @param  array{
+     *     nombre: string,
+     *     descripcion: string,
+     *     idEjeTrabajo: int|string,
+     *     modalidad: string,
+     *     formaTrabajo: string,
+     *     fechaInicio: string,
+     *     fechaTermino: string,
+     *     requerimientos?: ?string,
+     *     idUsuarioSolicitante?: int
+     * }  $datosValidados
      * @param  list<UploadedFile>|null  $archivos
      */
     public function ejecutar(
@@ -28,17 +38,33 @@ class RegistrarPropuesta
         ?array $archivos = null,
         ?UsuarioInstitucional $usuarioSolicitante = null,
     ): AccionSustentabilidad {
-        $idSolicitante = self::idPositivo($usuarioSolicitante?->getKey() ?? $datosValidados['idUsuarioSolicitante'] ?? null);
+        $idSolicitante = self::idPositivo(
+            $usuarioSolicitante?->getKey() ?? $datosValidados['idUsuarioSolicitante'] ?? null
+        );
         $fechaRegistro = now();
         $disco = Storage::disk('public');
         $rutasGuardadas = [];
 
         try {
-            return DB::transaction(function () use ($datosValidados, $archivos, $idSolicitante, $usuarioSolicitante, $fechaRegistro, &$rutasGuardadas): AccionSustentabilidad {
-                $solicitante = $usuarioSolicitante ?? UsuarioInstitucional::query()->findOrFail($idSolicitante);
-                $esCoordinadora = $solicitante->tieneRol(RolSistemaEnum::CoordinadoraSustentabilidad);
+            return DB::transaction(function () use (
+                $datosValidados,
+                $archivos,
+                $idSolicitante,
+                $usuarioSolicitante,
+                $fechaRegistro,
+                &$rutasGuardadas,
+            ): AccionSustentabilidad {
+                $solicitante = $usuarioSolicitante
+                    ?? UsuarioInstitucional::query()->findOrFail($idSolicitante);
+
+                $esCoordinadora = $solicitante->tieneRol(
+                    RolSistemaEnum::CoordinadoraSustentabilidad
+                );
+
                 $estadoInicial = EstadoAccion::asegurar(
-                    $esCoordinadora ? EstadoAccionEnum::Aprobada : EstadoAccionEnum::PendienteDeRevision,
+                    $esCoordinadora
+                        ? EstadoAccionEnum::Aprobada
+                        : EstadoAccionEnum::PendienteDeRevision,
                 );
 
                 $accion = AccionSustentabilidad::query()->create([
@@ -96,12 +122,14 @@ class RegistrarPropuesta
 
     private static function idPositivo(mixed $valor): int
     {
-        if ((! is_int($valor) && ! is_string($valor))
+        if (
+            (! is_int($valor) && ! is_string($valor))
             || filter_var(
                 $valor,
                 FILTER_VALIDATE_INT,
                 ['options' => ['min_range' => 1]],
-            ) === false) {
+            ) === false
+        ) {
             throw new InvalidArgumentException(
                 'Los identificadores deben ser enteros positivos.',
             );

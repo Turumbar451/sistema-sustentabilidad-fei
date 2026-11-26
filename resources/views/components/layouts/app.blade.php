@@ -1,8 +1,3 @@
-@props([
-    'title' => 'FEI Sustentabilidad',
-    'metaDescription' => 'Consulta las iniciativas de sustentabilidad de la comunidad universitaria de la FEI.',
-])
-
 @php
     $enlaces = [
         [
@@ -93,14 +88,34 @@
         <header class="border-b border-line bg-white">
             <div class="flex min-h-20 flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
                 <p class="text-sm font-semibold text-uv-blue">Gestión de iniciativas de sustentabilidad</p>
-                <div class="flex items-center gap-3 text-sm">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-uv-green-soft text-uv-green-dark" aria-hidden="true">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
-                            <path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21v-2a8 8 0 0 1 16 0v2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </span>
-                    <span class="font-medium">{{ auth()->user()?->nombreCompleto ?? 'Coordinación de Sustentabilidad' }}</span>
-                </div>
+                @auth('web')
+                    <div class="flex flex-wrap items-center gap-3 text-sm">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-uv-green-soft text-uv-green-dark" aria-hidden="true">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+                                <path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21v-2a8 8 0 0 1 16 0v2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <div>
+                            <p class="font-medium">{{ $usuarioAutenticado->nombreCompleto }}</p>
+                            @foreach ($usuarioAutenticado->rolesVigentes as $rol)
+                                <p class="text-xs text-muted">{{ $rol->nombre->value }}</p>
+                            @endforeach
+                        </div>
+                        <form method="POST" action="{{ route('sesion.cerrar') }}">
+                            @csrf
+                            <button type="submit" class="rounded-lg border border-line px-3 py-2 font-semibold text-uv-blue hover:bg-canvas focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uv-blue">
+                                Cerrar sesión
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    @if (app()->isLocal())
+                        <a href="{{ route('acceso-local.mostrar') }}"
+                           class="rounded-lg border border-line px-3 py-2 text-sm font-semibold text-uv-blue hover:bg-canvas focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-uv-blue">
+                            Acceso local
+                        </a>
+                    @endif
+                @endauth
             </div>
         </header>
 

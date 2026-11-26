@@ -25,14 +25,16 @@ class AccionSustentabilidad extends Model
 
     /** @use HasFactory<AccionSustentabilidadFactory> */
     use HasFactory;
+    // propiedades definidas por eloquent, no son palabras reservadas.
     protected static string $builder = AccionSustentabilidadBuilder::class;
-
     protected $table = 'AccionSustentabilidad';
 
     protected $primaryKey = 'idAccion';
 
+    //si dejamos en true, entonces Eloquent espera que existan las columnas created_at y updated_at
     public $timestamps = false;
 
+    // columnas que se pueden asignar masivamente (create, fill, update)
     protected $fillable = [
         'folio',
         'nombre',
@@ -58,8 +60,13 @@ class AccionSustentabilidad extends Model
         ];
     }
 
+    //accessors es una forma de definir propiedades calculdas que no existen en la base de datos
+    //fn() define la funcion getter con la logica del calculo
+    //attribute crea el objeto que guarda la funcion
+    //fechaInicioFormateada asocia la propiedad calculada con el nombre de la funcion
     protected function fechaInicioFormateada(): Attribute
     {
+        //que hacer cunando alguien pida este dato
         return Attribute::get(fn (): ?string => $this->fechaInicio?->format('d/m/Y'));
     }
 
@@ -73,11 +80,15 @@ class AccionSustentabilidad extends Model
         return Attribute::get(fn (): ?string => $this->fechaRegistro?->format('d/m/Y'));
     }
 
+    // belongsTo indica que este modelo (AccionSustentabilidad)
+    // tiene una llave foranea(muchos) que apunta a un registro en EjeTrabajo.
     public function ejeTrabajo(): BelongsTo
     {
+        // 1. Modelo relacionado
+        // 2. Columna foranea en la tabla actual (AccionSustentabilidad)
+        // 3. Columna referenciada en la tabla relacionada (EjeTrabajo)
         return $this->belongsTo(EjeTrabajo::class, 'idEjeTrabajo', 'idEjeTrabajo');
     }
-
     public function solicitante(): BelongsTo
     {
         return $this->belongsTo(
@@ -95,10 +106,11 @@ class AccionSustentabilidad extends Model
             'idEstadoAccion',
         );
     }
-
+    //hasMany indica que este modelo apunta a muchos registros
     public function historialEstados(): HasMany
     {
         return $this->hasMany(HistorialEstadoAccion::class, 'idAccion', 'idAccion')
+        //ordena por fecha, y si no, por historial.
             ->orderBy('fechaCambio')
             ->orderBy('idHistorial');
     }

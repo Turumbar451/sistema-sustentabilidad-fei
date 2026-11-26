@@ -1,21 +1,27 @@
 <?php
 
+use App\Http\Controllers\AccesoLocalController;
 use App\Http\Controllers\AccionSustentabilidadController;
-use App\Http\Middleware\ForzarCoordinadoraLocal;
 use Illuminate\Support\Facades\Route;
 
-// Temporal: el middleware solo asigna a la Coordinadora en el entorno local.
-Route::middleware(ForzarCoordinadoraLocal::class)->group(function (): void {
-    Route::get('/', [AccionSustentabilidadController::class, 'consultar'])
-        ->name('acciones.consultar');
+Route::get('/', [AccionSustentabilidadController::class, 'consultar'])
+    ->name('acciones.consultar');
 
-    Route::get('/acciones/registrar', [AccionSustentabilidadController::class, 'mostrarFormularioRegistro'])
-        ->name('acciones.formulario-registro');
+Route::get('/acciones/registrar', [AccionSustentabilidadController::class, 'mostrarFormularioRegistro'])
+    ->name('acciones.formulario-registro');
 
-    Route::post('/acciones', [AccionSustentabilidadController::class, 'registrar'])
-        ->name('acciones.registrar');
+Route::post('/acciones', [AccionSustentabilidadController::class, 'registrar'])
+    ->name('acciones.registrar');
 
-    Route::get('/acciones/{accionSustentabilidad}', [AccionSustentabilidadController::class, 'mostrarDetalle'])
-        ->whereNumber('accionSustentabilidad')
-        ->name('acciones.detalle');
-});
+Route::get('/acciones/{accionSustentabilidad}', [AccionSustentabilidadController::class, 'mostrarDetalle'])
+    ->whereNumber('accionSustentabilidad')
+    ->name('acciones.detalle');
+
+Route::get('/acceso-local', [AccesoLocalController::class, 'mostrar'])
+    ->name('acceso-local.mostrar');
+
+Route::post('/acceso-local', [AccesoLocalController::class, 'iniciar'])
+    ->name('acceso-local.iniciar');
+
+Route::post('/cerrar-sesion', [AccesoLocalController::class, 'cerrar'])
+    ->name('sesion.cerrar');

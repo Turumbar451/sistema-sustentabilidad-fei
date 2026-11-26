@@ -202,8 +202,9 @@ class DatabaseSeeder extends Seeder
         RolSistemaEnum $rol,
         CarbonImmutable $alta,
     ): UsuarioInstitucional {
-        $usuario = UsuarioInstitucional::factory()->create([
+        $usuario = UsuarioInstitucional::query()->updateOrCreate([
             'identificadorInstitucional' => $identificador,
+        ], [
             'nombreCompleto' => $nombre,
             'correoInstitucional' => $correo,
             'telefonoContacto' => null,
