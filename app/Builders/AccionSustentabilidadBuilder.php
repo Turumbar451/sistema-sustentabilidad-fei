@@ -14,6 +14,11 @@ use InvalidArgumentException;
 /** @extends Builder<AccionSustentabilidad> */
 class AccionSustentabilidadBuilder extends Builder
 {
+    public function delSolicitante(int $idUsuario): static
+    {
+        return $this->where('idUsuarioSolicitante', self::idPositivo($idUsuario));
+    }
+
     public function publicadas(): static
     {
         return $this->whereHas(

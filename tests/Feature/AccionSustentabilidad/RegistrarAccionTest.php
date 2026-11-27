@@ -116,7 +116,7 @@ it('registra la propuesta del usuario actual como pendiente e ignora campos cont
 
     $accion = AccionSustentabilidad::query()->with('estadoAccion')->sole();
     $mensaje = "La propuesta {$accion->folio} se registró como Pendiente de revision.";
-    $respuesta->assertRedirect(route('acciones.consultar'))->assertSessionHas('status', $mensaje);
+    $respuesta->assertRedirect(route('acciones.mis-propuestas'))->assertSessionHas('status', $mensaje);
     expect($accion->idUsuarioSolicitante)->toBe($usuario->getKey());
     expect($accion->estadoAccion->nombre)->toBe(EstadoAccionEnum::PendienteDeRevision);
     expect($accion->formaTrabajo)->toBe(FormaTrabajoEnum::from($forma));

@@ -76,7 +76,9 @@ it('permite registrar propuestas con un rol vigente autorizado', function (RolSi
     $datos = datosPropuestaParaAutorizacion(EjeTrabajo::factory()->create());
 
     $this->actingAs($usuario, 'web')->post(route('acciones.registrar'), $datos)
-        ->assertRedirect(route('acciones.consultar'))
+        ->assertRedirect(route($rol === RolSistemaEnum::CoordinadoraSustentabilidad
+            ? 'acciones.consultar'
+            : 'acciones.mis-propuestas'))
         ->assertSessionHasNoErrors();
 
     $this->assertDatabaseCount('AccionSustentabilidad', 1);
@@ -173,7 +175,7 @@ it('permite registrar cuando alguno de los roles vigentes autoriza aunque tambie
 
     $this->get(route('acciones.formulario-registro'))->assertOk();
     $this->post(route('acciones.registrar'), $datos)
-        ->assertRedirect(route('acciones.consultar'))
+        ->assertRedirect(route('acciones.mis-propuestas'))
         ->assertSessionHasNoErrors();
 
     $this->assertDatabaseHas('AccionSustentabilidad', [
@@ -230,6 +232,7 @@ it('muestra en el menu solo las opciones permitidas para el perfil', function (?
         expect($enlace->getAttribute('href'))->toBeIn([
             route('acciones.consultar'),
             route('acciones.formulario-registro'),
+            route('acciones.mis-propuestas'),
         ]);
     }
 })->with([

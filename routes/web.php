@@ -13,6 +13,13 @@ Route::middleware('rol:'.implode(',', [
     RolSistemaEnum::Maestro->value,
     RolSistemaEnum::CoordinadoraSustentabilidad->value,
 ]))->group(function (): void {
+    Route::get('/mis-propuestas', [AccionSustentabilidadController::class, 'misPropuestas'])
+        ->name('acciones.mis-propuestas');
+
+    Route::get('/mis-propuestas/{accionSustentabilidad}', [AccionSustentabilidadController::class, 'mostrarDetallePropia'])
+        ->whereNumber('accionSustentabilidad')
+        ->name('acciones.mis-propuestas.detalle');
+
     Route::get('/acciones/registrar', [AccionSustentabilidadController::class, 'mostrarFormularioRegistro'])
         ->name('acciones.formulario-registro');
 

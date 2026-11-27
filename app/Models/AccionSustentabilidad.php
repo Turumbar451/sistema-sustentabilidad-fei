@@ -20,18 +20,20 @@ use Illuminate\Support\Facades\DB;
 class AccionSustentabilidad extends Model
 {
     /* comentarion PHPDoc que utilizan los editores para autocompletado y sugerencias */
-/** @use HasBuilder<AccionSustentabilidadBuilder> */
+    /** @use HasBuilder<AccionSustentabilidadBuilder> */
     use HasBuilder;
 
     /** @use HasFactory<AccionSustentabilidadFactory> */
     use HasFactory;
+
     // propiedades definidas por eloquent, no son palabras reservadas.
     protected static string $builder = AccionSustentabilidadBuilder::class;
+
     protected $table = 'AccionSustentabilidad';
 
     protected $primaryKey = 'idAccion';
 
-    //si dejamos en true, entonces Eloquent espera que existan las columnas created_at y updated_at
+    // si dejamos en true, entonces Eloquent espera que existan las columnas created_at y updated_at
     public $timestamps = false;
 
     // columnas que se pueden asignar masivamente (create, fill, update)
@@ -60,13 +62,13 @@ class AccionSustentabilidad extends Model
         ];
     }
 
-    //accessors es una forma de definir propiedades calculdas que no existen en la base de datos
-    //fn() define la funcion getter con la logica del calculo
-    //attribute crea el objeto que guarda la funcion
-    //fechaInicioFormateada asocia la propiedad calculada con el nombre de la funcion
+    // accessors es una forma de definir propiedades calculdas que no existen en la base de datos
+    // fn() define la funcion getter con la logica del calculo
+    // attribute crea el objeto que guarda la funcion
+    // fechaInicioFormateada asocia la propiedad calculada con el nombre de la funcion
     protected function fechaInicioFormateada(): Attribute
     {
-        //que hacer cunando alguien pida este dato
+        // que hacer cunando alguien pida este dato
         return Attribute::get(fn (): ?string => $this->fechaInicio?->format('d/m/Y'));
     }
 
@@ -89,6 +91,7 @@ class AccionSustentabilidad extends Model
         // 3. Columna referenciada en la tabla relacionada (EjeTrabajo)
         return $this->belongsTo(EjeTrabajo::class, 'idEjeTrabajo', 'idEjeTrabajo');
     }
+
     public function solicitante(): BelongsTo
     {
         return $this->belongsTo(
@@ -106,11 +109,12 @@ class AccionSustentabilidad extends Model
             'idEstadoAccion',
         );
     }
-    //hasMany indica que este modelo apunta a muchos registros
+
+    // hasMany indica que este modelo apunta a muchos registros
     public function historialEstados(): HasMany
     {
         return $this->hasMany(HistorialEstadoAccion::class, 'idAccion', 'idAccion')
-        //ordena por fecha, y si no, por historial.
+        // ordena por fecha, y si no, por historial.
             ->orderBy('fechaCambio')
             ->orderBy('idHistorial');
     }
@@ -146,6 +150,32 @@ class AccionSustentabilidad extends Model
         return static::query()->paraCatalogo($filtros)->paginate($porPagina, ['*'], 'page', $pagina);
     }
 
+    /** @return LengthAwarePaginator<int, self> */
+    public static function paginarPropuestasDelSolicitante(
+        int $idUsuario,
+        int $porPagina = 10,
+        int $pagina = 1,
+    ): LengthAwarePaginator {
+        return static::query()
+            ->delSolicitante($idUsuario)
+            ->select([
+                'idAccion',
+                'folio',
+                'nombre',
+                'fechaRegistro',
+                'idEjeTrabajo',
+                'idEstadoAccion',
+                'idUsuarioSolicitante',
+            ])
+            ->with([
+                'ejeTrabajo:idEjeTrabajo,nombre',
+                'estadoAccion:idEstadoAccion,nombre',
+            ])
+            ->orderByDesc('fechaRegistro')
+            ->orderByDesc('idAccion')
+            ->paginate($porPagina, ['*'], 'page', $pagina);
+    }
+
     public static function buscarPorId(int $idAccion): ?self
     {
         return static::query()->find($idAccion);
@@ -165,6 +195,20 @@ class AccionSustentabilidad extends Model
             'estadoAccion:idEstadoAccion,nombre',
             'solicitante:idUsuario,nombreCompleto',
         ])->loadCount('participaciones');
+
+        return $this;
+    }
+
+    public function cargarRelacionesDetallePropia(): self
+    {
+        $this->loadMissing([
+            'ejeTrabajo:idEjeTrabajo,nombre',
+            'estadoAccion:idEstadoAccion,nombre',
+            'solicitante:idUsuario,nombreCompleto',
+            'evidencias',
+            'historialEstados.estadoAccion:idEstadoAccion,nombre',
+            'historialEstados.usuarioResponsable:idUsuario,nombreCompleto',
+        ]);
 
         return $this;
     }

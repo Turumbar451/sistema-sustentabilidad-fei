@@ -2,9 +2,9 @@
     $enlaces = [
         [
             'nombre' => 'Mis propuestas',
-            'url' => null,
+            'url' => route('acciones.mis-propuestas'),
             'visible' => $puedeRegistrarPropuestas,
-            'activo' => false,
+            'activo' => request()->routeIs('acciones.mis-propuestas', 'acciones.mis-propuestas.detalle'),
             'icono' => 'M3 12h4v8H3v-8Zm7-8h4v16h-4V4Zm7 5h4v11h-4V9Z',
         ],
         [
