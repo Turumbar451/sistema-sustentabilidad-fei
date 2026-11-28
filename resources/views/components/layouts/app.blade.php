@@ -16,9 +16,9 @@
         ],
         [
             'nombre' => 'Evaluación de propuestas',
-            'url' => null,
+            'url' => route('evaluacion.propuestas.index'),
             'visible' => $puedeEvaluarPropuestas,
-            'activo' => false,
+            'activo' => request()->routeIs('evaluacion.propuestas.*'),
             'icono' => 'M9 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3M9 3h6v4H9V3Zm-1 11 3 3 5-6',
         ],
         [

@@ -7,6 +7,7 @@ namespace App\Builders;
 use App\Enums\EstadoAccionEnum;
 use App\Enums\FormaTrabajoEnum;
 use App\Models\AccionSustentabilidad;
+use App\Models\EstadoAccion;
 use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
@@ -26,6 +27,39 @@ class AccionSustentabilidadBuilder extends Builder
             static fn (Builder $estado): Builder => $estado
                 ->whereIn('nombre', EstadoAccionEnum::valoresVisiblesEnCatalogo()),
         );
+    }
+
+    public function paraEvaluacion(): static
+    {
+        return $this
+            ->select([
+                'idAccion',
+                'folio',
+                'nombre',
+                'fechaRegistro',
+                'idEjeTrabajo',
+                'idEstadoAccion',
+                'idUsuarioSolicitante',
+            ])
+            ->whereHas(
+                'estadoAccion',
+                static fn (Builder $estado): Builder => $estado->whereIn('nombre', [
+                    EstadoAccionEnum::PendienteDeRevision->value,
+                    EstadoAccionEnum::CorreccionesSolicitadas->value,
+                ]),
+            )
+            ->with([
+                'ejeTrabajo:idEjeTrabajo,nombre',
+                'estadoAccion:idEstadoAccion,nombre',
+                'solicitante:idUsuario,nombreCompleto',
+            ])
+            ->orderBy(
+                EstadoAccion::query()
+                    ->selectRaw('CASE WHEN nombre = ? THEN 0 ELSE 1 END', [EstadoAccionEnum::PendienteDeRevision->value])
+                    ->whereColumn('EstadoAccion.idEstadoAccion', 'AccionSustentabilidad.idEstadoAccion'),
+            )
+            ->orderBy('fechaRegistro')
+            ->orderBy('idAccion');
     }
 
     /** @param array<string, mixed> $filtros */

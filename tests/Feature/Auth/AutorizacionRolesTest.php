@@ -233,6 +233,7 @@ it('muestra en el menu solo las opciones permitidas para el perfil', function (?
             route('acciones.consultar'),
             route('acciones.formulario-registro'),
             route('acciones.mis-propuestas'),
+            route('evaluacion.propuestas.index'),
         ]);
     }
 })->with([

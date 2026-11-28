@@ -176,6 +176,14 @@ class AccionSustentabilidad extends Model
             ->paginate($porPagina, ['*'], 'page', $pagina);
     }
 
+    /** @return LengthAwarePaginator<int, self> */
+    public static function paginarPropuestasParaEvaluacion(
+        int $porPagina = 10,
+        int $pagina = 1,
+    ): LengthAwarePaginator {
+        return static::query()->paraEvaluacion()->paginate($porPagina, ['*'], 'page', $pagina);
+    }
+
     public static function buscarPorId(int $idAccion): ?self
     {
         return static::query()->find($idAccion);
@@ -205,6 +213,20 @@ class AccionSustentabilidad extends Model
             'ejeTrabajo:idEjeTrabajo,nombre',
             'estadoAccion:idEstadoAccion,nombre',
             'solicitante:idUsuario,nombreCompleto',
+            'evidencias',
+            'historialEstados.estadoAccion:idEstadoAccion,nombre',
+            'historialEstados.usuarioResponsable:idUsuario,nombreCompleto',
+        ]);
+
+        return $this;
+    }
+
+    public function cargarRelacionesEvaluacion(): self
+    {
+        $this->load([
+            'ejeTrabajo:idEjeTrabajo,nombre',
+            'estadoAccion:idEstadoAccion,nombre',
+            'solicitante',
             'evidencias',
             'historialEstados.estadoAccion:idEstadoAccion,nombre',
             'historialEstados.usuarioResponsable:idUsuario,nombreCompleto',

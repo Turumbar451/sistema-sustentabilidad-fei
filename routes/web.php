@@ -3,6 +3,7 @@
 use App\Enums\RolSistemaEnum;
 use App\Http\Controllers\AccesoLocalController;
 use App\Http\Controllers\AccionSustentabilidadController;
+use App\Http\Controllers\EvaluacionPropuestaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [AccionSustentabilidadController::class, 'consultar'])
@@ -25,6 +26,15 @@ Route::middleware('rol:'.implode(',', [
 
     Route::post('/acciones', [AccionSustentabilidadController::class, 'registrar'])
         ->name('acciones.registrar');
+});
+
+Route::middleware('rol:'.RolSistemaEnum::CoordinadoraSustentabilidad->value)->group(function (): void {
+    Route::get('/evaluacion/propuestas', [EvaluacionPropuestaController::class, 'index'])
+        ->name('evaluacion.propuestas.index');
+
+    Route::get('/evaluacion/propuestas/{accionSustentabilidad}', [EvaluacionPropuestaController::class, 'mostrarDetalle'])
+        ->whereNumber('accionSustentabilidad')
+        ->name('evaluacion.propuestas.detalle');
 });
 
 Route::get('/acciones/{accionSustentabilidad}', [AccionSustentabilidadController::class, 'mostrarDetalle'])
